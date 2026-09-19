@@ -4,6 +4,7 @@ import { Overview } from './components/Overview';
 import { Sidebar } from './components/Sidebar';
 import { StubView } from './components/StubView';
 import { PageId, span } from './dashboardData';
+import { CircleManager } from './src/components/CircleManager/CircleManager';
 import { MemberList } from './src/components/MemberList/MemberList';
 
 function MainView({ activePage, onNavigate }: { activePage: PageId; onNavigate: (page: PageId) => void }) {
@@ -13,6 +14,10 @@ function MainView({ activePage, onNavigate }: { activePage: PageId; onNavigate: 
 
   if (activePage === 'members') {
     return <MemberList spanId={span.id} />;
+  }
+
+  if (activePage === 'circles') {
+    return <CircleManager spanId={span.id} />;
   }
 
   return <StubView page={activePage} />;
