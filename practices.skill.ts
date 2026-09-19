@@ -1,3 +1,4 @@
+import practicesData from './data/practices-data.json';
 import { PracticesData, Practice, Pillar } from './types';
 
 /**
@@ -13,14 +14,8 @@ class PracticesLib {
   async load(): Promise<PracticesData> {
     if (this.data) return this.data;
 
-    try {
-      const response = await fetch('/data/practices-data.json');
-      this.data = await response.json();
-      return this.data;
-    } catch (error) {
-      console.error('Failed to load practices bank:', error);
-      throw new Error('Could not load practices bank');
-    }
+    this.data = practicesData as PracticesData;
+    return this.data;
   }
 
   /**

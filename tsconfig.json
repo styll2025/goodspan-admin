@@ -27,6 +27,15 @@
       "@/*": ["src/*"]
     }
   },
-  "include": ["src"],
+  "include": [
+    "main.tsx",
+    "App.tsx",
+    "dashboardData.ts",
+    "types.ts",
+    "*.skill.ts",
+    "components/**/*.tsx",
+    "data/**/*.json",
+    "src"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }
