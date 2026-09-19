@@ -7,6 +7,7 @@ export type NavItem = {
 };
 
 export const span = {
+  id: 'sep-2026',
   label: 'Sep 2026',
   dateRange: '14 Sept - 16 Oct 2026',
 };

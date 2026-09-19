@@ -3,11 +3,16 @@ import { Header } from './components/Header';
 import { Overview } from './components/Overview';
 import { Sidebar } from './components/Sidebar';
 import { StubView } from './components/StubView';
-import { PageId } from './dashboardData';
+import { PageId, span } from './dashboardData';
+import { MemberList } from './src/components/MemberList/MemberList';
 
 function MainView({ activePage, onNavigate }: { activePage: PageId; onNavigate: (page: PageId) => void }) {
   if (activePage === 'overview') {
     return <Overview onNavigate={onNavigate} />;
+  }
+
+  if (activePage === 'members') {
+    return <MemberList spanId={span.id} />;
   }
 
   return <StubView page={activePage} />;

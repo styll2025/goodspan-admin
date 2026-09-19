@@ -1,307 +1,310 @@
-import Database from 'better-sqlite3';
-import { Span, Circle, Member, PracticeSelection, FeedbackEntry } from './types';
+import { Circle, FeedbackEntry, Member, PracticeSelection, Span } from './types';
+
+type StoreShape = {
+  spans: Span[];
+  members: Member[];
+  circles: Circle[];
+  practiceSelections: PracticeSelection[];
+  feedback: FeedbackEntry[];
+};
+
+const STORE_KEY = 'goodspan-admin-store-v1';
+const SPAN_ID = 'sep-2026';
+
+const now = '2026-09-14T00:00:00.000Z';
+
+const seedSpans: Span[] = [
+  {
+    id: SPAN_ID,
+    name: 'Sep 2026',
+    pillar: 'mind',
+    startDate: '2026-09-14',
+    endDate: '2026-10-16',
+    createdAt: now,
+    updatedAt: now,
+  },
+];
+
+const seedCircles: Circle[] = [
+  { id: 'circle-goodeat', spanId: SPAN_ID, pillarId: 'eat', name: 'GoodEat', createdAt: now },
+  { id: 'circle-goodmove', spanId: SPAN_ID, pillarId: 'move', name: 'GoodMove', createdAt: now },
+  { id: 'circle-goodmind', spanId: SPAN_ID, pillarId: 'mind', name: 'GoodMind', createdAt: now },
+  { id: 'circle-goodsleep', spanId: SPAN_ID, pillarId: 'sleep', name: 'GoodSleep', createdAt: now },
+];
+
+const memberSeed: Array<Pick<Member, 'name' | 'email' | 'pillar' | 'circleId'>> = [
+  { name: 'Sofia Morazzo', email: 'sf.morazzo@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Luisa Cariano', email: 'luisa.m.cariano@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Mattéo Girault', email: 'matteo.girault2000@gmail.com', pillar: 'eat', circleId: 'circle-goodmind' },
+  { name: 'Julia', email: 'hoopla.jule@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Isabel', email: 'izabella.getsu@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Yvonne', email: 'yvonne.knap@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Teresa Cutelo', email: 'teresa.cv.cutelo@gmail.com', pillar: 'move' },
+  { name: 'Farimah Milani', email: 'milanifarimah@gmail.com', pillar: 'mind', circleId: 'circle-goodmind' },
+  { name: 'Ivana Istochka', email: 'ivanaistochka@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Vanessa', email: 'vanessa+gs@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Fabricio', email: 'fabricio+gs@gmail.com', pillar: 'sleep' },
+  { name: 'Michelangelo', email: 'michelangelo+gs@gmail.com', pillar: 'mind' },
+  { name: 'Muriel Bille', email: 'muriel.bille@gmail.com', pillar: 'eat' },
+  { name: 'Xana', email: 'xana+gs@gmail.com', pillar: 'sleep' },
+  { name: 'CF', email: 'cf+gs@gmail.com', pillar: 'mind' },
+  { name: 'Ana Contreras Meca', email: 'ana.contreras@gmail.com', pillar: 'sleep' },
+  { name: 'Nicolas Ronco', email: 'nicolas.ronco@gmail.com', pillar: 'sleep' },
+  { name: 'Nausica Palazzo', email: 'nausica.palazzo@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Joel Antunes', email: 'joel.antunes@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Flaminia Buda', email: 'flaminia.buda@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Andreas', email: 'andreas+gs@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'António Ricciardi', email: 'antonio.ricciardi@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Denise Prino', email: 'denise.prino@gmail.com', pillar: 'eat', circleId: 'circle-goodeat' },
+  { name: 'Alexandra Franco', email: 'alexandra.franco@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Thomas Weidlich', email: 'thomas.weidlich@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Max', email: 'max+gs@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Naomi Silver', email: 'naomi.silver@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'James', email: 'james+gs@gmail.com', pillar: 'move', circleId: 'circle-goodmove' },
+  { name: 'Miguel Montez Tabuado', email: 'miguel.montez@gmail.com', pillar: 'mind', circleId: 'circle-goodmind' },
+  { name: 'Edgars Nemše', email: 'edgars.nemse@gmail.com', pillar: 'mind', circleId: 'circle-goodmind' },
+  { name: 'Karla', email: 'karla+gs@gmail.com', pillar: 'mind', circleId: 'circle-goodmind' },
+  { name: 'Filipa Almeida', email: 'filipa.almeida@gmail.com', pillar: 'mind', circleId: 'circle-goodmind' },
+  { name: 'Hayley Holle', email: 'hayley.holle@gmail.com', pillar: 'mind', circleId: 'circle-goodmind' },
+];
+
+const seedMembers: Member[] = memberSeed.map((member, index) => ({
+  id: `member-${index + 1}`,
+  spanId: SPAN_ID,
+  ...member,
+  createdAt: now,
+  updatedAt: now,
+}));
+
+function createId(prefix: string) {
+  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) {
+    return `${prefix}-${crypto.randomUUID()}`;
+  }
+
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
+
+function createInitialStore(): StoreShape {
+  return {
+    spans: seedSpans,
+    members: seedMembers,
+    circles: seedCircles,
+    practiceSelections: [],
+    feedback: [],
+  };
+}
 
 class SpanDB {
-  private db: Database.Database;
+  private store: StoreShape;
 
-  constructor(filePath: string) {
-    this.db = new Database(filePath);
-    this.db.pragma('journal_mode = WAL');
-    this.migrate();
+  constructor() {
+    this.store = this.loadStore();
   }
 
-  private migrate() {
-    // Create tables if they don't exist
-    this.db.exec(`
-      CREATE TABLE IF NOT EXISTS spans (
-        id TEXT PRIMARY KEY,
-        name TEXT NOT NULL,
-        pillar TEXT NOT NULL,
-        startDate TEXT NOT NULL,
-        endDate TEXT NOT NULL,
-        createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL
-      );
+  private loadStore(): StoreShape {
+    if (typeof window === 'undefined') return createInitialStore();
 
-      CREATE TABLE IF NOT EXISTS members (
-        id TEXT PRIMARY KEY,
-        spanId TEXT NOT NULL,
-        email TEXT NOT NULL,
-        name TEXT NOT NULL,
-        pillar TEXT NOT NULL,
-        circleId TEXT,
-        createdAt TEXT NOT NULL,
-        updatedAt TEXT NOT NULL,
-        FOREIGN KEY (spanId) REFERENCES spans(id),
-        UNIQUE(spanId, email)
-      );
+    const existing = window.localStorage.getItem(STORE_KEY);
+    if (!existing) {
+      const seeded = createInitialStore();
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(seeded));
+      return seeded;
+    }
 
-      CREATE TABLE IF NOT EXISTS circles (
-        id TEXT PRIMARY KEY,
-        spanId TEXT NOT NULL,
-        pillarId TEXT NOT NULL,
-        name TEXT NOT NULL,
-        createdAt TEXT NOT NULL,
-        FOREIGN KEY (spanId) REFERENCES spans(id),
-        UNIQUE(spanId, name)
-      );
-
-      CREATE TABLE IF NOT EXISTS practice_selections (
-        id TEXT PRIMARY KEY,
-        memberId TEXT NOT NULL,
-        spanId TEXT NOT NULL,
-        pillar TEXT NOT NULL,
-        category TEXT NOT NULL,
-        practiceText TEXT NOT NULL,
-        position INTEGER NOT NULL,
-        isStartWithThis INTEGER DEFAULT 0,
-        createdAt TEXT NOT NULL,
-        FOREIGN KEY (memberId) REFERENCES members(id),
-        FOREIGN KEY (spanId) REFERENCES spans(id),
-        UNIQUE(memberId, spanId, position)
-      );
-
-      CREATE TABLE IF NOT EXISTS feedback (
-        id TEXT PRIMARY KEY,
-        memberId TEXT NOT NULL,
-        spanId TEXT NOT NULL,
-        completionRate INTEGER NOT NULL,
-        feedbackText TEXT,
-        practiceNotes TEXT,
-        submittedAt TEXT NOT NULL,
-        createdAt TEXT NOT NULL,
-        FOREIGN KEY (memberId) REFERENCES members(id),
-        FOREIGN KEY (spanId) REFERENCES spans(id)
-      );
-
-      CREATE INDEX IF NOT EXISTS idx_members_spanId ON members(spanId);
-      CREATE INDEX IF NOT EXISTS idx_members_circleId ON members(circleId);
-      CREATE INDEX IF NOT EXISTS idx_circles_spanId ON circles(spanId);
-      CREATE INDEX IF NOT EXISTS idx_selections_memberId ON practice_selections(memberId);
-      CREATE INDEX IF NOT EXISTS idx_feedback_memberId ON feedback(memberId);
-    `);
+    try {
+      return JSON.parse(existing) as StoreShape;
+    } catch {
+      const seeded = createInitialStore();
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(seeded));
+      return seeded;
+    }
   }
 
-  // SPANS
+  private persist() {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(this.store));
+    }
+  }
+
+  private timestamp() {
+    return new Date().toISOString();
+  }
+
   createSpan(span: Omit<Span, 'createdAt' | 'updatedAt'>): Span {
-    const now = new Date().toISOString();
-    const stmt = this.db.prepare(
-      'INSERT INTO spans (id, name, pillar, startDate, endDate, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)'
-    );
-    stmt.run(span.id, span.name, span.pillar, span.startDate, span.endDate, now, now);
-    return { ...span, createdAt: now, updatedAt: now };
+    const timestamp = this.timestamp();
+    const newSpan = { ...span, createdAt: timestamp, updatedAt: timestamp };
+    this.store.spans = [newSpan, ...this.store.spans];
+    this.persist();
+    return newSpan;
   }
 
   getSpan(spanId: string): Span | null {
-    const stmt = this.db.prepare('SELECT * FROM spans WHERE id = ?');
-    return (stmt.get(spanId) as Span) || null;
+    return this.store.spans.find((span) => span.id === spanId) || null;
   }
 
   getAllSpans(): Span[] {
-    const stmt = this.db.prepare('SELECT * FROM spans ORDER BY createdAt DESC');
-    return stmt.all() as Span[];
+    return [...this.store.spans].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   }
 
   updateSpan(spanId: string, updates: Partial<Span>): void {
-    const now = new Date().toISOString();
-    const keys = Object.keys(updates).filter(k => k !== 'id' && k !== 'createdAt');
-    const setClause = keys.map(k => `${k} = ?`).join(', ');
-    const values = keys.map(k => updates[k as keyof Span]);
-    const stmt = this.db.prepare(`UPDATE spans SET ${setClause}, updatedAt = ? WHERE id = ?`);
-    stmt.run(...values, now, spanId);
+    const timestamp = this.timestamp();
+    this.store.spans = this.store.spans.map((span) =>
+      span.id === spanId ? { ...span, ...updates, id: span.id, createdAt: span.createdAt, updatedAt: timestamp } : span,
+    );
+    this.persist();
   }
 
   deleteSpan(spanId: string): void {
-    const stmt = this.db.prepare('DELETE FROM spans WHERE id = ?');
-    stmt.run(spanId);
+    this.store.spans = this.store.spans.filter((span) => span.id !== spanId);
+    this.store.members = this.store.members.filter((member) => member.spanId !== spanId);
+    this.store.circles = this.store.circles.filter((circle) => circle.spanId !== spanId);
+    this.store.practiceSelections = this.store.practiceSelections.filter((selection) => selection.spanId !== spanId);
+    this.store.feedback = this.store.feedback.filter((entry) => entry.spanId !== spanId);
+    this.persist();
   }
 
-  // MEMBERS
   createMember(member: Omit<Member, 'createdAt' | 'updatedAt'>): Member {
-    const now = new Date().toISOString();
-    const stmt = this.db.prepare(
-      'INSERT INTO members (id, spanId, email, name, pillar, circleId, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    );
-    stmt.run(
-      member.id,
-      member.spanId,
-      member.email,
-      member.name,
-      member.pillar,
-      member.circleId || null,
-      now,
-      now
-    );
-    return { ...member, createdAt: now, updatedAt: now };
+    const timestamp = this.timestamp();
+    const newMember = { ...member, createdAt: timestamp, updatedAt: timestamp };
+    this.store.members = [...this.store.members, newMember];
+    this.persist();
+    return newMember;
   }
 
   getMember(memberId: string): Member | null {
-    const stmt = this.db.prepare('SELECT * FROM members WHERE id = ?');
-    return (stmt.get(memberId) as Member) || null;
+    return this.store.members.find((member) => member.id === memberId) || null;
   }
 
   getMembersBySpan(spanId: string): Member[] {
-    const stmt = this.db.prepare('SELECT * FROM members WHERE spanId = ? ORDER BY name ASC');
-    return stmt.all(spanId) as Member[];
+    return this.store.members
+      .filter((member) => member.spanId === spanId)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   getMembersByCircle(circleId: string): Member[] {
-    const stmt = this.db.prepare('SELECT * FROM members WHERE circleId = ? ORDER BY name ASC');
-    return stmt.all(circleId) as Member[];
+    return this.store.members
+      .filter((member) => member.circleId === circleId)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   updateMember(memberId: string, updates: Partial<Member>): void {
-    const now = new Date().toISOString();
-    const keys = Object.keys(updates).filter(k => k !== 'id' && k !== 'createdAt');
-    const setClause = keys.map(k => `${k} = ?`).join(', ');
-    const values = keys.map(k => updates[k as keyof Member]);
-    const stmt = this.db.prepare(`UPDATE members SET ${setClause}, updatedAt = ? WHERE id = ?`);
-    stmt.run(...values, now, memberId);
+    const timestamp = this.timestamp();
+    this.store.members = this.store.members.map((member) =>
+      member.id === memberId
+        ? { ...member, ...updates, id: member.id, createdAt: member.createdAt, updatedAt: timestamp }
+        : member,
+    );
+    this.persist();
   }
 
   deleteMember(memberId: string): void {
-    const stmt = this.db.prepare('DELETE FROM members WHERE id = ?');
-    stmt.run(memberId);
+    this.store.members = this.store.members.filter((member) => member.id !== memberId);
+    this.store.practiceSelections = this.store.practiceSelections.filter((selection) => selection.memberId !== memberId);
+    this.store.feedback = this.store.feedback.filter((entry) => entry.memberId !== memberId);
+    this.persist();
   }
 
-  // CIRCLES
   createCircle(circle: Omit<Circle, 'createdAt'>): Circle {
-    const now = new Date().toISOString();
-    const stmt = this.db.prepare(
-      'INSERT INTO circles (id, spanId, pillarId, name, createdAt) VALUES (?, ?, ?, ?, ?)'
-    );
-    stmt.run(circle.id, circle.spanId, circle.pillarId, circle.name, now);
-    return { ...circle, createdAt: now };
+    const newCircle = { ...circle, createdAt: this.timestamp() };
+    this.store.circles = [...this.store.circles, newCircle];
+    this.persist();
+    return newCircle;
   }
 
   getCircle(circleId: string): Circle | null {
-    const stmt = this.db.prepare('SELECT * FROM circles WHERE id = ?');
-    return (stmt.get(circleId) as Circle) || null;
+    return this.store.circles.find((circle) => circle.id === circleId) || null;
   }
 
   getCirclesBySpan(spanId: string): Circle[] {
-    const stmt = this.db.prepare('SELECT * FROM circles WHERE spanId = ? ORDER BY name ASC');
-    return stmt.all(spanId) as Circle[];
+    return this.store.circles
+      .filter((circle) => circle.spanId === spanId)
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   updateCircle(circleId: string, updates: Partial<Circle>): void {
-    const keys = Object.keys(updates).filter(k => k !== 'id' && k !== 'createdAt');
-    const setClause = keys.map(k => `${k} = ?`).join(', ');
-    const values = keys.map(k => updates[k as keyof Circle]);
-    const stmt = this.db.prepare(`UPDATE circles SET ${setClause} WHERE id = ?`);
-    stmt.run(...values, circleId);
+    this.store.circles = this.store.circles.map((circle) =>
+      circle.id === circleId ? { ...circle, ...updates, id: circle.id, createdAt: circle.createdAt } : circle,
+    );
+    this.persist();
   }
 
   deleteCircle(circleId: string): void {
-    const stmt = this.db.prepare('DELETE FROM circles WHERE id = ?');
-    stmt.run(circleId);
+    this.store.circles = this.store.circles.filter((circle) => circle.id !== circleId);
+    this.store.members = this.store.members.map((member) =>
+      member.circleId === circleId ? { ...member, circleId: undefined, updatedAt: this.timestamp() } : member,
+    );
+    this.persist();
   }
 
   addMemberToCircle(memberId: string, circleId: string): void {
-    const stmt = this.db.prepare('UPDATE members SET circleId = ? WHERE id = ?');
-    stmt.run(circleId, memberId);
+    this.updateMember(memberId, { circleId });
   }
 
   removeMemberFromCircle(memberId: string): void {
-    const stmt = this.db.prepare('UPDATE members SET circleId = NULL WHERE id = ?');
-    stmt.run(memberId);
+    this.updateMember(memberId, { circleId: undefined });
   }
 
-  // PRACTICE SELECTIONS
   createPracticeSelection(selection: Omit<PracticeSelection, 'createdAt'>): PracticeSelection {
-    const now = new Date().toISOString();
-    const stmt = this.db.prepare(
-      'INSERT INTO practice_selections (id, memberId, spanId, pillar, category, practiceText, position, isStartWithThis, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
-    );
-    stmt.run(
-      selection.id,
-      selection.memberId,
-      selection.spanId,
-      selection.pillar,
-      selection.category,
-      selection.practiceText,
-      selection.position,
-      selection.isStartWithThis ? 1 : 0,
-      now
-    );
-    return { ...selection, createdAt: now };
+    const newSelection = { ...selection, createdAt: this.timestamp() };
+    this.store.practiceSelections = [...this.store.practiceSelections, newSelection];
+    this.persist();
+    return newSelection;
   }
 
-  getPracticeSelectionsByMember(memberId: string, spanId: string): PracticeSelection[] {
-    const stmt = this.db.prepare(
-      'SELECT * FROM practice_selections WHERE memberId = ? AND spanId = ? ORDER BY position ASC'
-    );
-    const results = stmt.all(memberId, spanId) as any[];
-    return results.map(r => ({ ...r, isStartWithThis: Boolean(r.isStartWithThis) }));
+  getPracticeSelectionsBySpan(spanId: string): PracticeSelection[] {
+    return this.store.practiceSelections
+      .filter((selection) => selection.spanId === spanId)
+      .sort((a, b) => a.position - b.position);
+  }
+
+  getPracticeSelectionsByMember(memberId: string, spanId?: string): PracticeSelection[] {
+    return this.store.practiceSelections
+      .filter((selection) => selection.memberId === memberId && (!spanId || selection.spanId === spanId))
+      .sort((a, b) => a.position - b.position);
   }
 
   updatePracticeSelection(selectionId: string, updates: Partial<PracticeSelection>): void {
-    const keys = Object.keys(updates).filter(k => k !== 'id' && k !== 'createdAt');
-    const setClause = keys.map(k => `${k} = ?`).join(', ');
-    const values = keys.map(k => {
-      if (k === 'isStartWithThis') return updates[k] ? 1 : 0;
-      return updates[k as keyof PracticeSelection];
-    });
-    const stmt = this.db.prepare(`UPDATE practice_selections SET ${setClause} WHERE id = ?`);
-    stmt.run(...values, selectionId);
+    this.store.practiceSelections = this.store.practiceSelections.map((selection) =>
+      selection.id === selectionId ? { ...selection, ...updates, id: selection.id, createdAt: selection.createdAt } : selection,
+    );
+    this.persist();
   }
 
   deletePracticeSelection(selectionId: string): void {
-    const stmt = this.db.prepare('DELETE FROM practice_selections WHERE id = ?');
-    stmt.run(selectionId);
+    this.store.practiceSelections = this.store.practiceSelections.filter((selection) => selection.id !== selectionId);
+    this.persist();
   }
 
-  // FEEDBACK
   createFeedback(feedback: Omit<FeedbackEntry, 'createdAt'>): FeedbackEntry {
-    const now = new Date().toISOString();
-    const stmt = this.db.prepare(
-      'INSERT INTO feedback (id, memberId, spanId, completionRate, feedbackText, practiceNotes, submittedAt, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    );
-    stmt.run(
-      feedback.id,
-      feedback.memberId,
-      feedback.spanId,
-      feedback.completionRate,
-      feedback.feedbackText || null,
-      feedback.practiceNotes ? JSON.stringify(feedback.practiceNotes) : null,
-      feedback.submittedAt,
-      now
-    );
-    return { ...feedback, createdAt: now };
+    const newFeedback = { ...feedback, createdAt: this.timestamp() };
+    this.store.feedback = [...this.store.feedback, newFeedback];
+    this.persist();
+    return newFeedback;
   }
 
   getFeedbackByMember(memberId: string): FeedbackEntry[] {
-    const stmt = this.db.prepare('SELECT * FROM feedback WHERE memberId = ? ORDER BY submittedAt DESC');
-    const results = stmt.all(memberId) as any[];
-    return results.map(r => ({
-      ...r,
-      practiceNotes: r.practiceNotes ? JSON.parse(r.practiceNotes) : undefined,
-    }));
+    return this.store.feedback
+      .filter((entry) => entry.memberId === memberId)
+      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   }
 
   getFeedbackBySpan(spanId: string): FeedbackEntry[] {
-    const stmt = this.db.prepare('SELECT * FROM feedback WHERE spanId = ? ORDER BY submittedAt DESC');
-    const results = stmt.all(spanId) as any[];
-    return results.map(r => ({
-      ...r,
-      practiceNotes: r.practiceNotes ? JSON.parse(r.practiceNotes) : undefined,
-    }));
+    return this.store.feedback
+      .filter((entry) => entry.spanId === spanId)
+      .sort((a, b) => b.submittedAt.localeCompare(a.submittedAt));
   }
 
   updateFeedback(feedbackId: string, updates: Partial<FeedbackEntry>): void {
-    const keys = Object.keys(updates).filter(k => k !== 'id' && k !== 'createdAt');
-    const setClause = keys.map(k => `${k} = ?`).join(', ');
-    const values = keys.map(k => {
-      if (k === 'practiceNotes') return updates[k] ? JSON.stringify(updates[k]) : null;
-      return updates[k as keyof FeedbackEntry];
-    });
-    const stmt = this.db.prepare(`UPDATE feedback SET ${setClause} WHERE id = ?`);
-    stmt.run(...values, feedbackId);
+    this.store.feedback = this.store.feedback.map((entry) =>
+      entry.id === feedbackId ? { ...entry, ...updates, id: entry.id, createdAt: entry.createdAt } : entry,
+    );
+    this.persist();
   }
 
   close() {
-    this.db.close();
+    this.persist();
   }
 }
 
-export const db = new SpanDB('./goodspan.db');
+export { createId };
+export const db = new SpanDB();
