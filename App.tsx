@@ -6,6 +6,7 @@ import { StubView } from './components/StubView';
 import { PageId, span } from './dashboardData';
 import { CircleManager } from './src/components/CircleManager/CircleManager';
 import { MemberList } from './src/components/MemberList/MemberList';
+import { PracticeSelector } from './src/components/PracticeSelector/PracticeSelector';
 
 function MainView({ activePage, onNavigate }: { activePage: PageId; onNavigate: (page: PageId) => void }) {
   if (activePage === 'overview') {
@@ -18,6 +19,10 @@ function MainView({ activePage, onNavigate }: { activePage: PageId; onNavigate: 
 
   if (activePage === 'circles') {
     return <CircleManager spanId={span.id} />;
+  }
+
+  if (activePage === 'plans') {
+    return <PracticeSelector spanId={span.id} />;
   }
 
   return <StubView page={activePage} />;
